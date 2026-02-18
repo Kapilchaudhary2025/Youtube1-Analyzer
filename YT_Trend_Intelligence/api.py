@@ -51,9 +51,10 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.get("/")
-def read_root():
-    return {"status": "active", "system": "TrendIntel AI"}
+# Root route removed to allow frontend to take over
+# @app.get("/")
+# def read_root():
+#     return {"status": "active", "system": "TrendIntel AI"}
 
 @app.get("/trends")
 def get_trends(limit: int = 50, category: str = None):
@@ -199,4 +200,34 @@ def run_cycle_manually():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# -------------------------------------------------------------------
+# Serve Frontend (Must be last)
+# -------------------------------------------------------------------
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Helper to serve index.html for SPA routing (React Router)
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    # API requests are handled above.
+    # If a file exists in dist, let StaticFiles handle it (mounted below).
+    # IF NOT, serve index.html for client-side routing.
+    
+    file_path = f"frontend/dist/{full_path}"
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # Fallback to index.html
+    return FileResponse("frontend/dist/index.html")
+
+# Mount assets (js, css, etc.)
+app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+# Note: The root "/" route defined earlier might conflict. 
+# Better pattern: Remove the explicit root route and let the catch-all handle it.
+# Or just ensure API routes are specific (e.g. /api/v1/...) 
+# But for simplicity here, we rely on route order.
+
+
 
