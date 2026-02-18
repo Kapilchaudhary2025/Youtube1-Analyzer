@@ -8,8 +8,34 @@ import ai_analyzer
 import category_engine
 import youtube_client
 from pydantic import BaseModel
+import threading
+import time
+from contextlib import asynccontextmanager
+import main
 
-app = FastAPI(title="TrendIntel API", description="API for YouTube Trend Intelligence")
+# Background Worker Thread
+def run_worker_loop():
+    print("Background Worker Started: Waiting 10s before first run...")
+    time.sleep(10) # Initial buffer
+    while True:
+        try:
+            print(">>> Triggering Background Analysis Cycle <<<")
+            main.main()
+        except Exception as e:
+            print(f"Background Worker Error: {e}")
+        
+        print("Worker sleeping for 30 minutes...")
+        time.sleep(1800)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    worker_thread = threading.Thread(target=run_worker_loop, daemon=True)
+    worker_thread.start()
+    yield
+    # Shutdown (if needed)
+
+app = FastAPI(title="TrendIntel API", description="API for YouTube Trend Intelligence", lifespan=lifespan)
 
 # CORS for frontend
 app.add_middleware(
@@ -173,3 +199,4 @@ def run_cycle_manually():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
