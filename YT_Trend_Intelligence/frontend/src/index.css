@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 98%; /* Gray-50 */
+    --foreground: 222 47% 11%; /* Gray-900 */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --border: 214 32% 91%;
+    --primary: 221 83% 53%; /* Blue-600 */
+    --primary-foreground: 210 40% 98%;
+  }
+
+  .dark {
+    --background: 240 10% 4%; /* #0f0f14 */
+    --foreground: 210 40% 98%;
+    --card: 240 10% 11%; /* #1e1e24 - Slightly lighter for cards */
+    --card-foreground: 210 40% 98%;
+    --border: 240 3.7% 15.9%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-family: "Inter", sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
+  .bg-card {
+    background-color: hsl(var(--card));
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
